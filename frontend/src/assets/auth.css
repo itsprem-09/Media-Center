@@ -1,0 +1,373 @@
+/* Auth Pages Styling - Modern TheHindu-inspired */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f9f9f9;
+  padding: 20px;
+}
+
+/* TheHindu.com-style Auth Pages Styling - Enhanced */
+.hindu-auth-card {
+  width: 100%;
+  max-width: 450px;
+  background-color: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  padding: 35px 40px;
+  margin: 0 auto;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hindu-auth-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 450px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.hindu-auth-header {
+  margin-bottom: 25px;
+}
+
+.hindu-auth-header h2 {
+  color: #222;
+  font-size: 26px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  font-family: 'Noto Serif', serif;
+  letter-spacing: -0.3px;
+}
+
+.hindu-divider {
+  height: 2px;
+  background-color: #2b6da8; /* Updated TheHindu blue color */
+  width: 60px;
+  margin-bottom: 25px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.auth-header h2 {
+  color: #333;
+  font-size: 28px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.auth-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.auth-form {
+  margin-bottom: 25px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.form-group input::placeholder {
+  color: #aaa;
+}
+
+/* TheHindu.com form styling - Enhanced */
+.hindu-auth-form {
+  margin-bottom: 25px;
+}
+
+.hindu-form-group {
+  margin-bottom: 22px;
+}
+
+.hindu-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #444;
+  font-weight: 500;
+  font-size: 14px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.hindu-form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dbdbdb;
+  border-radius: 4px;
+  font-size: 15px;
+  color: #333;
+  transition: all 0.25s ease;
+  background-color: #fafafa;
+}
+
+.hindu-form-group input:focus {
+  outline: none;
+  border-color: #2b6da8;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(43, 109, 168, 0.1);
+}
+
+.hindu-form-group input::placeholder {
+  color: #999;
+}
+
+.hindu-form-help {
+  margin-top: -10px;
+  margin-bottom: 22px;
+  text-align: right;
+}
+
+.hindu-form-help a {
+  color: #2b6da8;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.hindu-form-help a:hover {
+  color: #134a7c;
+  text-decoration: underline;
+}
+
+.hindu-terms {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(to right, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.auth-button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.auth-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* TheHindu.com button styling - Enhanced */
+.hindu-auth-button {
+  width: 100%;
+  padding: 13px 16px;
+  background-color: #2b6da8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-family: 'Open Sans', sans-serif;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  letter-spacing: 0.5px;
+}
+
+.hindu-auth-button:hover {
+  background-color: #1a5a90;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.hindu-auth-button:disabled {
+  background-color: #97b7d5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 25px;
+  color: #666;
+  font-size: 14px;
+}
+
+.auth-footer a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.auth-footer a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* TheHindu.com footer styling */
+.hindu-auth-footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eaeaea;
+  color: #666;
+  font-size: 14px;
+}
+
+.hindu-auth-footer a {
+  color: #005689;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.hindu-auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.hindu-separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 22px 0;
+}
+
+.hindu-separator::before,
+.hindu-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.hindu-separator span {
+  padding: 0 12px;
+  color: #777;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.auth-error {
+  background-color: #fff5f5;
+  color: #e53e3e;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border-left: 4px solid #e53e3e;
+}
+
+.auth-success {
+  background-color: #f0fff4;
+  color: #38a169;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border-left: 4px solid #38a169;
+}
+
+/* TheHindu.com message styling */
+.hindu-auth-error {
+  background-color: #fff5f5;
+  color: #e53e3e;
+  border-left: 4px solid #e53e3e;
+  padding: 14px 16px;
+  margin-bottom: 25px;
+  border-radius: 4px;
+  font-size: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+}
+
+.hindu-auth-error:before {
+  content: '⚠';
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.hindu-auth-success {
+  background-color: #f0fff4;
+  color: #38a169;
+  border-left: 4px solid #38a169;
+  padding: 14px 16px;
+  margin-bottom: 25px;
+  border-radius: 4px;
+  font-size: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+}
+
+.hindu-auth-success:before {
+  content: '✓';
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .auth-card {
+    padding: 25px;
+  }
+  
+  .auth-header h2 {
+    font-size: 24px;
+  }
+  
+  .form-group input {
+    padding: 10px 12px;
+  }
+}
