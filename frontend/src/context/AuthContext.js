@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setLoading(true);
-      const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const res = await axios.post(`${process.env.REACT_APP_API_URL || 'https://media-center-d6js.onrender.com/api'}/auth/login`, { email, password });
       
       const { user, token } = res.data;
       
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setLoading(true);
-      const res = await axios.post('http://localhost:5000/api/auth/register', userData);
+      const res = await axios.post(`${process.env.REACT_APP_API_URL || 'https://media-center-d6js.onrender.com/api'}/auth/register`, userData);
       setLoading(false);
       return res.data;
     } catch (err) {

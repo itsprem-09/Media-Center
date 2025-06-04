@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Set base URL for all API requests
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api'
+  baseURL: process.env.REACT_APP_API_URL || 'https://media-center-d6js.onrender.com/api'
 });
 
 // Intercept requests and add auth token if available
