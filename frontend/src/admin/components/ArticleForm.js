@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { Editor, EditorState, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
+import { EditorState, ContentState, convertToRaw, convertFromRaw } from 'draft-js';
+import { Editor } from 'react-draft-wysiwyg';
+import draftToHtml from 'draftjs-to-html';
 import 'draft-js/dist/Draft.css';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import * as api from '../../utils/api';
 import FileUpload from '../../components/FileUpload';
 import { 
@@ -108,8 +111,7 @@ const StyledTextField = styled(TextField)`
 const EditorContainer = styled(Box)`
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  padding: 20px;
-  min-height: 250px;
+  overflow: hidden;
   margin-bottom: 20px;
   background-color: white;
   transition: all 0.3s ease;
@@ -119,12 +121,34 @@ const EditorContainer = styled(Box)`
     box-shadow: 0 0 0 3px rgba(43, 109, 168, 0.1);
   }
   
-  .DraftEditor-root {
-    height: 100%;
-    min-height: 210px;
+  .rdw-editor-wrapper {
     font-family: 'Open Sans', sans-serif;
+  }
+  
+  .rdw-editor-toolbar {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+  }
+  
+  .rdw-editor-main {
+    padding: 20px;
+    min-height: 250px;
     font-size: 1rem;
     line-height: 1.6;
+  }
+  
+  .rdw-option-wrapper {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+  }
+  
+  .rdw-option-active {
+    background-color: #e0e0e0;
+    box-shadow: none;
   }
   
   .public-DraftEditorPlaceholder-root {
@@ -210,16 +234,22 @@ const CATEGORIES = [
 ];
 
 const ArticleForm = ({ initialData, isEditing = false }) => {
-  // Initialize form data with defaults or initial values
-  const [formData, setFormData] = useState({
+  // Initial form state
+  const defaultFormState = {
     title: '',
+    slug: '',
+    summary: '',
     content: '',
-    author: '',
-    category: 'news',
-    tags: '',
-    ...initialData
-  });
-  
+    rawContent: '',
+    category: '',
+    imageUrl: '',
+    videoUrl: '',
+    tags: []
+  };
+
+  // Initialize form data with defaults or initial values
+  const [formData, setFormData] = useState({ ...defaultFormState, ...initialData });
+
   // Initialize image data with proper fallback handling
   const [imageData, setImageData] = useState(() => {
     // If initialData has image URL, create proper image data object
@@ -231,7 +261,7 @@ const ArticleForm = ({ initialData, isEditing = false }) => {
     }
     return null;
   });
-  
+
   // Initialize video data with proper fallback handling
   const [videoData, setVideoData] = useState(() => {
     if (initialData?.video) {
@@ -242,45 +272,70 @@ const ArticleForm = ({ initialData, isEditing = false }) => {
     }
     return null;
   });
-  
+
   const [editorState, setEditorState] = useState(() => {
-    if (initialData?.content) {
-      return EditorState.createWithContent(ContentState.createFromText(initialData.content));
+    if (initialData?.rawContent) {
+      try {
+        // Try to parse the raw content (rich text)
+        const contentState = convertFromRaw(JSON.parse(initialData.rawContent));
+        return EditorState.createWithContent(contentState);
+      } catch (error) {
+        // Fallback to plain text if raw content cannot be parsed
+        if (initialData.content) {
+          return EditorState.createWithContent(
+            ContentState.createFromText(initialData.content)
+          );
+        }
+      }
+    } else if (initialData?.content) {
+      // Fallback to plain text content
+      return EditorState.createWithContent(
+        ContentState.createFromText(initialData.content)
+      );
     }
     return EditorState.createEmpty();
   });
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [tags, setTags] = useState(initialData?.tags ? (Array.isArray(initialData.tags) ? initialData.tags.map(tag => String(tag).trim()).filter(Boolean) : String(initialData.tags).split(',').map(tag => tag.trim()).filter(Boolean)) : []);
   
+  // Initialize navigation
   const navigate = useNavigate();
-  
+
+  // Set up form data with initial data if editing
   useEffect(() => {
-    if (isEditing && initialData) {
-      // Update form data with initial values if editing an existing article
+    if (initialData && isEditing) {
       setFormData({
         title: initialData.title || '',
-        content: initialData.content || '', 
-        author: initialData.author || '',
-        category: initialData.category || CATEGORIES[0],
+        slug: initialData.slug || '',
+        summary: initialData.summary || '',
+        content: initialData.content || '',
+        rawContent: initialData.rawContent || '',
+        category: initialData.category || '',
+        imageUrl: initialData.imageUrl || '',
+        videoUrl: initialData.videoUrl || '',
+        tags: initialData.tags || []
       });
 
-      // Handle content - try to parse as JSON first, fall back to plain text
-      if (initialData.content) {
-        try {
-          const contentState = convertFromRaw(JSON.parse(initialData.content));
-          setEditorState(EditorState.createWithContent(contentState));
-        } catch (e) {
-          setEditorState(EditorState.createWithContent(ContentState.createFromText(initialData.content)));
-        }
-      } else {
-        setEditorState(EditorState.createEmpty());
+      // Set image and video data if available
+      if (initialData.imageUrl) {
+        setImageData({
+          url: initialData.imageUrl,
+          publicId: initialData.imagePublicId || ''
+        });
       }
-
-      // Handle tags - properly parse from array or comma-separated string
+      
+      if (initialData.videoUrl) {
+        setVideoData({
+          url: initialData.videoUrl,
+          publicId: initialData.videoPublicId || ''
+        });
+      }
+      
+      // Handle tags
       if (initialData.tags) {
-        const initialTags = Array.isArray(initialData.tags) 
+        const initialTags = Array.isArray(initialData.tags)
           ? initialData.tags.map(tag => String(tag).trim()).filter(Boolean)
           : String(initialData.tags).split(',').map(tag => tag.trim()).filter(Boolean);
         setTags(initialTags);
@@ -359,8 +414,15 @@ const ArticleForm = ({ initialData, isEditing = false }) => {
   // Handle editor changes
   const handleEditorChange = (state) => {
     setEditorState(state);
-    const content = state.getCurrentContent().getPlainText();
-    setFormData(prev => ({ ...prev, content }));
+    // Store both the raw content (for saving/editing) and plain text (for validation)
+    const currentContent = state.getCurrentContent();
+    const rawContent = JSON.stringify(convertToRaw(currentContent));
+    const plainText = currentContent.getPlainText();
+    setFormData(prev => ({ 
+      ...prev, 
+      content: plainText,
+      rawContent: rawContent 
+    }));
   };
   
   // Handle image upload success
@@ -390,14 +452,11 @@ const ArticleForm = ({ initialData, isEditing = false }) => {
     
     // Validation
     let hasErrors = false;
-    if (!formData.title.trim()) {
+    if (!formData.title || !formData.title.trim()) {
       setError('Title is required');
       hasErrors = true;
-    } else if (!formData.content.trim()) {
+    } else if (!formData.content || !formData.content.trim()) {
       setError('Content is required');
-      hasErrors = true;
-    } else if (!formData.author.trim()) {
-      setError('Author is required');
       hasErrors = true;
     }
     
@@ -418,8 +477,15 @@ const ArticleForm = ({ initialData, isEditing = false }) => {
         }
       }
       
+      // Convert the editor content to HTML for display
+      const contentState = editorState.getCurrentContent();
+      const rawContentState = convertToRaw(contentState);
+      const htmlContent = draftToHtml(rawContentState);
+      
       const articleData = {
         ...formData,
+        content: htmlContent, // Use HTML content for display
+        rawContent: JSON.stringify(rawContentState), // Store raw content for later editing
         imageData: imageData,
         videoData: videoData
       };
@@ -559,8 +625,31 @@ const ArticleForm = ({ initialData, isEditing = false }) => {
               <EditorContainer>
                 <Editor
                   editorState={editorState}
-                  onChange={handleEditorChange}
+                  onEditorStateChange={handleEditorChange}
                   placeholder="Write your article content here..."
+                  toolbar={{
+                    options: ['inline', 'blockType', 'fontSize', 'list', 'textAlign', 'colorPicker', 'link', 'embedded', 'emoji', 'image', 'history'],
+                    inline: {
+                      options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace'],
+                      bold: { className: 'bordered-option-classname' },
+                      italic: { className: 'bordered-option-classname' },
+                      underline: { className: 'bordered-option-classname' },
+                      strikethrough: { className: 'bordered-option-classname' },
+                      code: { className: 'bordered-option-classname' }
+                    },
+                    blockType: {
+                      className: 'bordered-option-classname',
+                    },
+                    fontSize: {
+                      className: 'bordered-option-classname',
+                    },
+                    list: {
+                      className: 'bordered-option-classname',
+                    },
+                  }}
+                  wrapperClassName="rich-editor-wrapper"
+                  editorClassName="rich-editor-content"
+                  toolbarClassName="rich-editor-toolbar"
                 />
               </EditorContainer>
               <FormHelperText>Rich, detailed content improves reader engagement</FormHelperText>

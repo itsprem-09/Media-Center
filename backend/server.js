@@ -10,6 +10,7 @@ const articleRoutes = require('./routes/article.routes');
 const galleryRoutes = require('./routes/gallery.routes');
 const videoRoutes = require('./routes/video.routes');
 const uploadRoutes = require('./routes/upload.routes');
+const searchRoutes = require('./routes/search.routes');
 
 // Configure environment variables
 dotenv.config();
@@ -37,6 +38,7 @@ app.use('/api/articles', articleRoutes);
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/search', searchRoutes);
 
 // Base route for API health check
 app.get('/api', (req, res) => {

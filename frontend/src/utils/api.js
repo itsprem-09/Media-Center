@@ -9,7 +9,11 @@ const API = axios.create({
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // Make sure we're setting the Authorization header properly
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`
+    };
   }
   return config;
 });
@@ -58,6 +62,11 @@ export const uploadVideo = (formData) => {
       'Content-Type': 'multipart/form-data'
     }
   });
+};
+
+// Search API
+export const searchContent = (query, params = {}) => {
+  return API.get('/search', { params: { query, ...params } });
 };
 
 export default API;

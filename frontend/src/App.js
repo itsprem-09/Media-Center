@@ -9,10 +9,11 @@ import VideoPage from './pages/VideoPage';
 import CategoryPage from './pages/CategoryPage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import SearchResults from './pages/SearchResults';
 
 // Admin Pages
-import AdminLogin from './admin/AdminLogin';
 import AdminDashboard from './admin/AdminDashboard';
+import AdminDocs from './admin/AdminDocs';
 
 // Admin Form Pages
 import AdminArticlePage from './admin/pages/AdminArticlePage';
@@ -43,9 +44,9 @@ function App() {
             <Route path="/category/:category" element={<CategoryPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/search" element={<SearchResults />} />
             
             {/* Admin Routes */}
-            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={
               <ProtectedRoute>
                 <AdminDashboard />
@@ -100,6 +101,13 @@ function App() {
             <Route path="/admin/videos/edit/:id" element={
               <ProtectedRoute>
                 <AdminVideoPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Admin Documentation Route */}
+            <Route path="/admin/docs" element={
+              <ProtectedRoute>
+                <AdminDocs />
               </ProtectedRoute>
             } />
           </Routes>

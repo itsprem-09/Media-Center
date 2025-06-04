@@ -8,6 +8,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import ArticleIcon from '@mui/icons-material/Article';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
@@ -251,7 +252,7 @@ const AdminLayout = ({ children }) => {
   // Get current page name for the header
   const getCurrentPageName = () => {
     const path = location.pathname;
-    if (path === '/admin/dashboard') return 'Dashboard';
+    if (path === '/admin' || path === '/admin/dashboard') return 'Dashboard';
     if (path === '/admin/articles') return 'Articles Management';
     if (path.includes('/admin/articles/add')) return 'Add New Article';
     if (path.includes('/admin/articles/edit')) return 'Edit Article';
@@ -261,6 +262,7 @@ const AdminLayout = ({ children }) => {
     if (path === '/admin/videos') return 'Videos Management';
     if (path.includes('/admin/videos/add')) return 'Add New Video';
     if (path.includes('/admin/videos/edit')) return 'Edit Video';
+    if (path === '/admin/docs') return 'Documentation & Resources';
     return 'Admin Panel';
   };
   
@@ -274,7 +276,7 @@ const AdminLayout = ({ children }) => {
   
   const handleLogout = () => {
     logout();
-    navigate('/admin/login');
+    navigate('/login');
   };
   
   const toggleSidebar = () => {
@@ -361,6 +363,16 @@ const AdminLayout = ({ children }) => {
               className={location.pathname.includes('/admin/videos') ? 'active' : ''}
             >
               <VideoLibraryIcon /> Videos
+            </NavLink>
+          </NavItem>
+          
+          <NavItem>
+            <NavLink 
+              to="/admin/docs" 
+              onClick={closeSidebarOnMobile}
+              className={location.pathname.includes('/admin/docs') ? 'active' : ''}
+            >
+              <MenuBookIcon /> Documentation
             </NavLink>
           </NavItem>
           

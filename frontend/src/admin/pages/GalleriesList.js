@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import * as api from '../../utils/api';
 import { 
@@ -24,7 +24,8 @@ import {
   CardMedia,
   CardContent,
   CardActions,
-  Divider
+  Divider,
+  Box
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -32,8 +33,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SearchIcon from '@mui/icons-material/Search';
 import Tooltip from '@mui/material/Tooltip';
 import AdminLayout from '../components/AdminLayout';
+import SearchBar from '../../components/SearchBar';
 
 const Container = styled.div`
   padding: 30px 20px;
@@ -228,25 +231,37 @@ const NoGalleriesMessage = styled.div`
   }
 `;
 
+// Helper function to get search params from URL
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const GalleriesList = () => {
+  const navigate = useNavigate();
+  const query = useQuery();
+  const searchQuery = query.get('query') || '';
   const [galleries, setGalleries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [galleryToDelete, setGalleryToDelete] = useState(null);
   
-  const navigate = useNavigate();
-  
   useEffect(() => {
     fetchGalleries();
-  }, []);
+  }, [searchQuery]);
   
   const fetchGalleries = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await api.fetchGalleries();
-      // Extract the galleries array from the response
-      setGalleries(response.data.galleries || []);
+      if (searchQuery) {
+        // If there's a search query, use the search API
+        const response = await api.searchContent(searchQuery);
+        setGalleries(response.data.results.galleries);
+      } else {
+        // Otherwise fetch all galleries
+        const response = await api.fetchGalleries();
+        setGalleries(response.data.galleries || []);
+      }
     } catch (error) {
       console.error('Error fetching galleries:', error);
       setError('Failed to load galleries. Please try again.');
@@ -305,18 +320,50 @@ const GalleriesList = () => {
       <Container>
       <Header>
         <Typography variant="h4" component="h1">
-          <PhotoLibraryIcon fontSize="large" />
-          Manage Photo Galleries
+          <PhotoLibraryIcon sx={{ mr: 1 }} />
+          Photo Galleries
         </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           startIcon={<AddIcon />}
           onClick={() => navigate('/admin/galleries/new')}
         >
-          Create New Gallery
+          Add New Gallery
         </Button>
       </Header>
+      
+      {/* Search Bar */}
+      <Box mb={3}>
+        <SearchBar 
+          initialQuery={searchQuery}
+          onSearch={(query) => {
+            if (query.trim()) {
+              navigate(`/admin/galleries?query=${encodeURIComponent(query.trim())}`);
+            } else {
+              navigate('/admin/galleries');
+            }
+          }}
+          placeholder="Search galleries by title..."
+        />
+      </Box>
+      
+      {/* Show search indicator if searching */}
+      {searchQuery && (
+        <Box display="flex" alignItems="center" mb={2} p={2} bgcolor="#f5f7fa" borderRadius={1}>
+          <SearchIcon color="primary" sx={{ mr: 1 }} />
+          <Typography variant="body2">
+            Showing results for "{searchQuery}" {' '}
+            <Button 
+              size="small" 
+              variant="text" 
+              onClick={() => navigate('/admin/galleries')}
+            >
+              Clear search
+            </Button>
+          </Typography>
+        </Box>
+      )}
       
       {error && (
         <Typography color="error" sx={{ mb: 2 }}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import * as api from '../../utils/api';
 import { 
@@ -28,6 +28,7 @@ import {
   Tooltip,
   Fade,
   Chip,
+  Box,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -39,7 +40,9 @@ import SortIcon from '@mui/icons-material/Sort';
 import VideoFileIcon from '@mui/icons-material/VideoFile';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import SearchIcon from '@mui/icons-material/Search';
 import AdminLayout from '../components/AdminLayout';
+import SearchBar from '../../components/SearchBar';
 
 const Container = styled.div`
   width: 100%;
@@ -289,7 +292,15 @@ const VideoStatusChip = styled(Chip)`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 `;
 
+// Helper function to get search params from URL
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const VideosList = () => {
+  const navigate = useNavigate();
+  const query = useQuery();
+  const searchQuery = query.get('query') || '';
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -297,21 +308,28 @@ const VideosList = () => {
   const [videoToDelete, setVideoToDelete] = useState(null);
   const [sortOrder, setSortOrder] = useState('newest');
   
-  const navigate = useNavigate();
-  
   useEffect(() => {
     fetchVideos();
-  }, []);
+  }, [searchQuery]);
   
   const fetchVideos = async () => {
     try {
       setLoading(true);
-      const response = await api.fetchVideos();
-      // Extract the videos array from the response
-      const videoData = response.data.videos || [];
+      let videosData = [];
+      
+      if (searchQuery) {
+        // If there's a search query, use the search API
+        const response = await api.searchContent(searchQuery);
+        videosData = response.data.results.videos || [];
+      } else {
+        // Otherwise fetch all videos
+        const response = await api.fetchVideos();
+        videosData = response.data.videos || [];
+      }
       
       // Sort videos by created date (newest first by default)
-      sortVideos(videoData, sortOrder);
+      const sortedVideos = sortVideos(videosData, sortOrder);
+      setVideos(sortedVideos);
     } catch (error) {
       console.error('Error fetching videos:', error);
       setError('Failed to load videos. Please try again.');
@@ -331,12 +349,13 @@ const VideosList = () => {
       sortedVideos.sort((a, b) => a.title.localeCompare(b.title));
     }
     
-    setVideos(sortedVideos);
+    return sortedVideos;
   };
   
   const handleSortChange = (order) => {
     setSortOrder(order);
-    sortVideos(videos, order);
+    const sortedVideos = sortVideos(videos, order);
+    setVideos(sortedVideos);
   };
   
   const handleDeleteClick = (video) => {
@@ -411,6 +430,38 @@ const VideosList = () => {
             Add New Video
           </AddButton>
         </div>
+        
+        {/* Search Bar */}
+        <Box mb={3}>
+          <SearchBar 
+            initialQuery={searchQuery}
+            onSearch={(query) => {
+              if (query.trim()) {
+                navigate(`/admin/videos?query=${encodeURIComponent(query.trim())}`);
+              } else {
+                navigate('/admin/videos');
+              }
+            }}
+            placeholder="Search videos by title or description..."
+          />
+        </Box>
+        
+        {/* Show search indicator if searching */}
+        {searchQuery && (
+          <Box display="flex" alignItems="center" mb={2} p={2} bgcolor="#f5f7fa" borderRadius={1}>
+            <SearchIcon color="primary" sx={{ mr: 1 }} />
+            <Typography variant="body2">
+              Showing results for "{searchQuery}" {' '}
+              <Button 
+                size="small" 
+                variant="text" 
+                onClick={() => navigate('/admin/videos')}
+              >
+                Clear search
+              </Button>
+            </Typography>
+          </Box>
+        )}
         
         {error && (
           <Paper 

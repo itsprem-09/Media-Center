@@ -1,5 +1,4 @@
 /* Main App styles with TheHindu.com aesthetic - Modern Version */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=Open+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
   --primary-color: #2b6da8;
@@ -24,7 +23,7 @@
 }
 
 body {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'GFS Didot', serif;
   color: var(--text-dark);
   line-height: 1.6;
   background-color: var(--background-light);
@@ -44,7 +43,7 @@ main {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Noto Serif', serif;
+  font-family: 'GFS Didot', serif;
   font-weight: 700;
   color: var(--text-dark);
   line-height: 1.3;

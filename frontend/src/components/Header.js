@@ -1,11 +1,12 @@
-import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useContext, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SearchIcon from '@mui/icons-material/Search';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
 import { AuthContext } from '../context/AuthContext';
+import SearchBar from './SearchBar';
 
 const HeaderContainer = styled.header`
   background-color: #fff;
@@ -47,8 +48,16 @@ const Logo = styled.div`
   }
 `;
 
-const NavWrapper = styled.div`
-  max-height: ${props => (props.isOpen ? '300px' : '0')};
+const NavWrapper = styled.div.attrs(props => ({
+  // Use transient props with $ prefix to avoid passing to DOM
+  style: {
+    maxHeight: props.$isOpen ? '300px' : '0'
+  }
+}))`
+  display: flex;
+  flex: 1;
+  transition: all 0.3s ease;
+  overflow: hidden;
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
   background-color: #fff;
@@ -133,6 +142,7 @@ const Search = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  position: relative;
 `;
 
 const AuthLinks = styled.div`
@@ -207,13 +217,85 @@ const DateDisplay = styled.div`
   border-bottom: 1px solid #e1e1e1;
 `;
 
+const SearchDropdown = styled.div.attrs(props => ({
+  // Use transient props with $ prefix to avoid passing to DOM
+  style: {
+    opacity: props.$isVisible ? 1 : 0,
+    visibility: props.$isVisible ? 'visible' : 'hidden',
+    transform: props.$isVisible ? 'translateY(0)' : 'translateY(-10px)'
+  }
+}))`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  margin-top: 10px;
+  z-index: 1000;
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  
+  @media (max-width: 576px) {
+    width: 260px;
+    right: -30px;
+  }
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 12px;
+    width: 12px;
+    height: 12px;
+    background-color: white;
+    transform: rotate(45deg);
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+`;
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, logout } = useContext(AuthContext);
+  const searchRef = useRef(null);
+  const navigate = useNavigate();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+  
+  const toggleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
+  };
+  
+  const handleSearchSubmit = (query) => {
+    setIsSearchOpen(false);
+    
+    // If we're on the home page, use custom event to trigger search
+    if (window.location.pathname === '/') {
+      const searchEvent = new CustomEvent('performSearch', { detail: { query } });
+      window.dispatchEvent(searchEvent);
+    } else {
+      // If we're on another page, navigate to homepage with search query
+      navigate(`/?search=${encodeURIComponent(query)}`);
+    }
+  };
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsSearchOpen(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   
   const handleLogout = () => {
     logout();
@@ -237,8 +319,15 @@ const Header = () => {
           {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
         </MenuButton>
         <HeaderActions>
-          <Search>
-            <SearchIcon />
+          <Search ref={searchRef}>
+            <SearchIcon onClick={toggleSearch} />
+            <SearchDropdown $isVisible={isSearchOpen}>
+              <SearchBar 
+                onSearch={handleSearchSubmit} 
+                placeholder="Search articles, galleries, videos..."
+                size="small"
+              />
+            </SearchDropdown>
           </Search>
           
           {user ? (
@@ -259,7 +348,7 @@ const Header = () => {
         </HeaderActions>
       </TopBar>
       
-      <NavWrapper isOpen={isMenuOpen}>
+      <NavWrapper $isOpen={isMenuOpen}>
         <Nav>
           <NavItem className={activeItem === '/' ? 'active' : ''}>
             <Link to="/" onClick={() => { setActiveItem('/'); toggleMenu(); }}>Home</Link>

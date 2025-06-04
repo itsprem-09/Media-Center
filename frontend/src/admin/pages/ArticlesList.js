@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import * as api from '../../utils/api';
 import { 
@@ -28,10 +28,13 @@ import NewspaperIcon from '@mui/icons-material/Newspaper';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PersonIcon from '@mui/icons-material/Person';
 import CategoryIcon from '@mui/icons-material/Category';
+import SearchIcon from '@mui/icons-material/Search';
 import Tooltip from '@mui/material/Tooltip';
 import Fade from '@mui/material/Fade';
 import Divider from '@mui/material/Divider';
-import AdminLayout from '../components/AdminLayout'; // Import AdminLayout
+import Box from '@mui/material/Box';
+import AdminLayout from '../components/AdminLayout';
+import SearchBar from '../../components/SearchBar';
 
 const Container = styled.div`
   padding: 30px 20px;
@@ -171,25 +174,41 @@ const NoArticlesMessage = styled.div`
   }
 `;
 
+// Helper function to get search params from URL
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const ArticlesList = () => {
+  const navigate = useNavigate();
+  const query = useQuery();
+  const searchQuery = query.get('query') || '';
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState(null);
   
-  const navigate = useNavigate();
-  
   useEffect(() => {
     fetchArticles();
-  }, []);
+  }, [searchQuery]);
   
   const fetchArticles = async () => {
     try {
       setLoading(true);
-      const response = await api.fetchArticles();
-      // Extract the articles array from the response
-      setArticles(response.data.articles || []);
+      let articlesData = [];
+      
+      if (searchQuery) {
+        // If there's a search query, use the search API
+        const response = await api.searchContent(searchQuery);
+        articlesData = response.data.results.articles || [];
+      } else {
+        // Otherwise fetch all articles
+        const response = await api.fetchArticles();
+        articlesData = response.data.articles || [];
+      }
+      
+      setArticles(articlesData);
     } catch (error) {
       console.error('Error fetching articles:', error);
       setError('Failed to load articles. Please try again.');
@@ -247,27 +266,59 @@ const ArticlesList = () => {
     <AdminLayout>
       <Container>
         <Header>
-        <Typography variant="h4" component="h1">
-          <NewspaperIcon fontSize="large" />
-          Manage Articles
-        </Typography>
-        <Button 
-          variant="contained" 
-          color="primary" 
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/admin/articles/new')}
-        >
-          Add New Article
-        </Button>
-      </Header>
-      
-      {error && (
-        <Typography color="error" sx={{ mb: 2 }}>
-          {error}
-        </Typography>
-      )}
-      
-      {articles.length > 0 ? (
+          <Typography variant="h4" component="h1">
+            <NewspaperIcon sx={{ mr: 1 }} />
+            Articles
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/admin/articles/new')}
+          >
+            Create New Article
+          </Button>
+        </Header>
+        
+        {/* Search Bar */}
+        <Box mb={3}>
+          <SearchBar 
+            initialQuery={searchQuery}
+            onSearch={(query) => {
+              if (query.trim()) {
+                navigate(`/admin/articles?query=${encodeURIComponent(query.trim())}`);
+              } else {
+                navigate('/admin/articles');
+              }
+            }}
+            placeholder="Search articles by title, content, category or tags..."
+          />
+        </Box>
+        
+        {/* Show search indicator if searching */}
+        {searchQuery && (
+          <Box display="flex" alignItems="center" mb={2} p={2} bgcolor="#f5f7fa" borderRadius={1}>
+            <SearchIcon color="primary" sx={{ mr: 1 }} />
+            <Typography variant="body2">
+              Showing results for "{searchQuery}" {' '}
+              <Button 
+                size="small" 
+                variant="text" 
+                onClick={() => navigate('/admin/articles')}
+              >
+                Clear search
+              </Button>
+            </Typography>
+          </Box>
+        )}
+        
+        {error && (
+          <Typography color="error" sx={{ mb: 2 }}>
+            {error}
+          </Typography>
+        )}
+        
+        {articles.length > 0 ? (
         <TableContainer component={Paper} sx={{ borderRadius: '10px', overflow: 'hidden', boxShadow: '0 6px 15px rgba(0, 0, 0, 0.08)' }}>
           <Table sx={{ minWidth: 700 }}>
             <TableHead>
