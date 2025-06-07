@@ -9,7 +9,7 @@
 
 body {
   margin: 0;
-  font-family: 'GFS Didot', serif;
+  font-family: 'Didot', 'GFS Didot', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f9f9f9;
@@ -18,7 +18,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'GFS Didot', serif;
+  font-family: 'Didot', 'GFS Didot', serif;
   font-weight: 600;
   margin-bottom: 0.5rem;
   line-height: 1.2;
@@ -53,7 +53,7 @@ a:hover {
 }
 
 .section-title {
-  font-family: 'GFS Didot', serif;
+  font-family: 'Didot', 'GFS Didot', serif;
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -82,7 +82,7 @@ a:hover {
 }
 
 .card-title {
-  font-family: 'GFS Didot', serif;
+  font-family: 'Didot', 'GFS Didot', serif;
   font-size: 1.15rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
